@@ -76,5 +76,37 @@ namespace PlanLekcji.Controllers
             }
             return dto;
         }
+
+        [HttpPost]
+        public IActionResult Create([FromBody]KlasyAddDTO dto)
+        {
+            if (dto == null || string.IsNullOrWhiteSpace(dto.Nazwa))
+                return BadRequest();
+            using (SqlConnection connection = new SqlConnection(configuration.GetConnectionString("DefaultConnection")))
+            {
+                try
+                {
+                    SqlCommand command = new SqlCommand(@"INSERT INTO Klasy (NAZWA, ROCZNIK, WYCHOWAWCAID) VALUES (@nazwa, @rocznik, @wychowawcaId)", connection);
+                    command.CommandType = System.Data.CommandType.Text;
+                    command.Parameters.Add("nazwa", SqlDbType.VarChar);
+                    command.Parameters["nazwa"].Value = dto.Nazwa;
+                    command.Parameters.Add("rocznik", SqlDbType.Int);
+                    command.Parameters["rocznik"].Value = dto.Rocznik;
+                    command.Parameters.Add("wychowawcaId", SqlDbType.BigInt);
+                    command.Parameters["wychowawcaId"].Value = dto.WychowawcaId;
+                    connection.Open();
+                    var result = command.ExecuteNonQuery();
+                }
+                catch 
+                {
+                    return BadRequest();
+                }
+                finally
+                {
+                    connection.Close();
+                }
+            }
+            return NoContent();
+        }
     }
 }
