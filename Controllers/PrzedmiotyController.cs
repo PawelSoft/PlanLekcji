@@ -10,94 +10,94 @@ using PlanLekcji.DTO;
 
 namespace PlanLekcji.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class PrzedmiotyController : ControllerBase
+  [Route("api/[controller]")]
+  [ApiController]
+  public class PrzedmiotyController : ControllerBase
+  {
+    IConfiguration configuration;
+    public PrzedmiotyController(IConfiguration configuration)
     {
-        IConfiguration configuration;
-        public PrzedmiotyController(IConfiguration configuration)
-        {
-            this.configuration = configuration;
-        }
-
-        [HttpGet]
-        public ActionResult<IList<PrzedmiotyDTO>> GetAll()
-        {
-            List<PrzedmiotyDTO> list = new List<PrzedmiotyDTO>();
-             using (SqlConnection connection = new SqlConnection(configuration.GetConnectionString("DefaultConnection")))
-            {
-
-                SqlCommand command = new SqlCommand("SELECT ID, NAZWA FROM PRZEDMIOTY", connection);
-                command.CommandType = System.Data.CommandType.Text;
-                connection.Open();
-                var reader = command.ExecuteReader();
-                while (reader.Read())
-                {
-                    PrzedmiotyDTO dto = new PrzedmiotyDTO();
-                    dto.Id = reader.GetInt64(0);
-                    dto.Nazwa = reader.GetString(1);
-                    list.Add(dto);
-                }
-                connection.Close();
-            }
-            return list;
-        }
-
-        [HttpGet("{id}")]
-        public ActionResult<PrzedmiotyDTO> Get(Int64 id)
-        {
-            PrzedmiotyDTO dto = new PrzedmiotyDTO();
-            using (SqlConnection connection = new SqlConnection(configuration.GetConnectionString("DefaultConnection")))
-            {
-
-                SqlCommand command = new SqlCommand(@"SELECT ID, NAZWA FROM PRZEDMIOTY 
-                    WHERE Id = @Id", connection);
-                command.CommandType = System.Data.CommandType.Text;
-                command.Parameters.Add("Id", SqlDbType.BigInt);
-                command.Parameters["Id"].Value = id;
-                connection.Open();
-                var reader = command.ExecuteReader();
-                if (reader.Read())
-                {
-                    dto.Id = reader.GetInt64(0);
-                    dto.Nazwa = reader.GetString(1);
-                    connection.Close();
-                } 
-                else 
-                {
-                    connection.Close();
-                    return NotFound();
-                }
-            }
-            return dto;
-        }
-
-        [HttpPost]
-        public IActionResult Create([FromBody]PrzedmiotAddDTO dto)
-        {
-            if (dto == null || string.IsNullOrWhiteSpace(dto.Nazwa))
-                return BadRequest();
-            using (SqlConnection connection = new SqlConnection(configuration.GetConnectionString("DefaultConnection")))
-            {
-                try
-                {
-                    SqlCommand command = new SqlCommand(@"INSERT INTO Przedmioty (NAZWA) VALUES (@nazwa)", connection);
-                    command.CommandType = System.Data.CommandType.Text;
-                    command.Parameters.Add("nazwa", SqlDbType.VarChar);
-                    command.Parameters["nazwa"].Value = dto.Nazwa;
-                    connection.Open();
-                    var result = command.ExecuteNonQuery();
-                }
-                catch 
-                {
-                    return BadRequest();
-                }
-                finally
-                {
-                    connection.Close();
-                }
-            }
-            return NoContent();
-        }
+      this.configuration = configuration;
     }
+
+    [HttpGet]
+    public ActionResult<IList<PrzedmiotDTO>> GetAll()
+    {
+      List<PrzedmiotDTO> list = new List<PrzedmiotDTO>();
+      using (SqlConnection connection = new SqlConnection(configuration.GetConnectionString("DefaultConnection")))
+      {
+
+        SqlCommand command = new SqlCommand("SELECT ID, NAZWA FROM PRZEDMIOTY", connection);
+        command.CommandType = System.Data.CommandType.Text;
+        connection.Open();
+        var reader = command.ExecuteReader();
+        while (reader.Read())
+        {
+          PrzedmiotDTO dto = new PrzedmiotDTO();
+          dto.Id = reader.GetInt64(0);
+          dto.Nazwa = reader.GetString(1);
+          list.Add(dto);
+        }
+        connection.Close();
+      }
+      return list;
+    }
+
+    [HttpGet("{id}")]
+    public ActionResult<PrzedmiotDTO> Get(Int64 id)
+    {
+      PrzedmiotDTO dto = new PrzedmiotDTO();
+      using (SqlConnection connection = new SqlConnection(configuration.GetConnectionString("DefaultConnection")))
+      {
+
+        SqlCommand command = new SqlCommand(@"SELECT ID, NAZWA FROM PRZEDMIOTY 
+                    WHERE Id = @Id", connection);
+        command.CommandType = System.Data.CommandType.Text;
+        command.Parameters.Add("Id", SqlDbType.BigInt);
+        command.Parameters["Id"].Value = id;
+        connection.Open();
+        var reader = command.ExecuteReader();
+        if (reader.Read())
+        {
+          dto.Id = reader.GetInt64(0);
+          dto.Nazwa = reader.GetString(1);
+          connection.Close();
+        }
+        else
+        {
+          connection.Close();
+          return NotFound();
+        }
+      }
+      return dto;
+    }
+
+    [HttpPost]
+    public IActionResult Create([FromBody]PrzedmiotAddDTO dto)
+    {
+      if (dto == null || string.IsNullOrWhiteSpace(dto.Nazwa))
+        return BadRequest();
+      using (SqlConnection connection = new SqlConnection(configuration.GetConnectionString("DefaultConnection")))
+      {
+        try
+        {
+          SqlCommand command = new SqlCommand(@"INSERT INTO Przedmioty (NAZWA) VALUES (@nazwa)", connection);
+          command.CommandType = System.Data.CommandType.Text;
+          command.Parameters.Add("nazwa", SqlDbType.VarChar);
+          command.Parameters["nazwa"].Value = dto.Nazwa;
+          connection.Open();
+          var result = command.ExecuteNonQuery();
+        }
+        catch
+        {
+          return BadRequest();
+        }
+        finally
+        {
+          connection.Close();
+        }
+      }
+      return NoContent();
+    }
+  }
 }
