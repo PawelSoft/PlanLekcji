@@ -50,7 +50,8 @@ namespace PlanLekcji.Controllers
             using (SqlConnection connection = new SqlConnection(configuration.GetConnectionString("DefaultConnection")))
             {
 
-                SqlCommand command = new SqlCommand("SELECT ID, NAZWA FROM PRZEDMIOTY WHERE Id = @Id", connection);
+                SqlCommand command = new SqlCommand(@"SELECT ID, NAZWA FROM PRZEDMIOTY 
+                    WHERE Id = @Id", connection);
                 command.CommandType = System.Data.CommandType.Text;
                 command.Parameters.Add("Id", SqlDbType.BigInt);
                 command.Parameters["Id"].Value = id;
@@ -69,6 +70,34 @@ namespace PlanLekcji.Controllers
                 }
             }
             return dto;
+        }
+
+        [HttpPost]
+        public IActionResult Create([FromBody]PrzedmiotAddDTO dto)
+        {
+            if (dto == null || string.IsNullOrWhiteSpace(dto.Nazwa))
+                return BadRequest();
+            using (SqlConnection connection = new SqlConnection(configuration.GetConnectionString("DefaultConnection")))
+            {
+                try
+                {
+                    SqlCommand command = new SqlCommand(@"INSERT INTO Przedmioty (NAZWA) VALUES (@nazwa)", connection);
+                    command.CommandType = System.Data.CommandType.Text;
+                    command.Parameters.Add("nazwa", SqlDbType.VarChar);
+                    command.Parameters["nazwa"].Value = dto.Nazwa;
+                    connection.Open();
+                    var result = command.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest();
+                }
+                finally
+                {
+                    connection.Close();
+                }
+            }
+            return NoContent();
         }
     }
 }
