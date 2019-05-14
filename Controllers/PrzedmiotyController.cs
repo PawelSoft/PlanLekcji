@@ -88,7 +88,7 @@ namespace PlanLekcji.Controllers
                     connection.Open();
                     var result = command.ExecuteNonQuery();
                 }
-                catch (Exception ex)
+                catch 
                 {
                     return BadRequest();
                 }
