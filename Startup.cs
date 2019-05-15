@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using PlanLekcji.Repositories;
 using PlanLekcji.Services;
 using Swashbuckle.AspNetCore.Swagger;
 
@@ -38,6 +39,7 @@ namespace PlanLekcji
                
             });
             services.AddScoped<IPrzedmiotyService, PrzedmiotyService>();
+            services.AddScoped<IPrzedmiotyRepository, PrzedmiotyRepository>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 

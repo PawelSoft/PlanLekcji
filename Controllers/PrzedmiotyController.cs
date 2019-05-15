@@ -44,7 +44,7 @@ namespace PlanLekcji.Controllers
       if (result == true)
         return NoContent();
       else
-        return BadRequest();      
+        return Conflict("Obkiekt już istnieje");
     }
   }
 }
