@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using PlanLekcji.DTO;
+using PlanLekcji.Services;
 
 namespace PlanLekcji.Controllers
 {
@@ -15,61 +16,23 @@ namespace PlanLekcji.Controllers
   public class PrzedmiotyController : ControllerBase
   {
     IConfiguration configuration;
-    public PrzedmiotyController(IConfiguration configuration)
+    IPrzedmiotyService przedmiotyService;
+    public PrzedmiotyController(IConfiguration configuration, IPrzedmiotyService przedmiotyService)
     {
       this.configuration = configuration;
+      this.przedmiotyService = przedmiotyService;
     }
 
     [HttpGet]
     public ActionResult<IList<PrzedmiotDTO>> GetAll()
     {
-      List<PrzedmiotDTO> list = new List<PrzedmiotDTO>();
-      using (SqlConnection connection = new SqlConnection(configuration.GetConnectionString("DefaultConnection")))
-      {
-
-        SqlCommand command = new SqlCommand("SELECT ID, NAZWA FROM PRZEDMIOTY", connection);
-        command.CommandType = System.Data.CommandType.Text;
-        connection.Open();
-        var reader = command.ExecuteReader();
-        while (reader.Read())
-        {
-          PrzedmiotDTO dto = new PrzedmiotDTO();
-          dto.Id = reader.GetInt64(0);
-          dto.Nazwa = reader.GetString(1);
-          list.Add(dto);
-        }
-        connection.Close();
-      }
-      return list;
+      return przedmiotyService.GetAll().ToList();
     }
 
     [HttpGet("{id}")]
     public ActionResult<PrzedmiotDTO> Get(Int64 id)
     {
-      PrzedmiotDTO dto = new PrzedmiotDTO();
-      using (SqlConnection connection = new SqlConnection(configuration.GetConnectionString("DefaultConnection")))
-      {
-
-        SqlCommand command = new SqlCommand(@"SELECT ID, NAZWA FROM PRZEDMIOTY 
-                    WHERE Id = @Id", connection);
-        command.CommandType = System.Data.CommandType.Text;
-        command.Parameters.Add("Id", SqlDbType.BigInt);
-        command.Parameters["Id"].Value = id;
-        connection.Open();
-        var reader = command.ExecuteReader();
-        if (reader.Read())
-        {
-          dto.Id = reader.GetInt64(0);
-          dto.Nazwa = reader.GetString(1);
-          connection.Close();
-        }
-        else
-        {
-          connection.Close();
-          return NotFound();
-        }
-      }
-      return dto;
+      return przedmiotyService.Get(id);
     }
 
     [HttpPost]
@@ -77,27 +40,11 @@ namespace PlanLekcji.Controllers
     {
       if (dto == null || string.IsNullOrWhiteSpace(dto.Nazwa))
         return BadRequest();
-      using (SqlConnection connection = new SqlConnection(configuration.GetConnectionString("DefaultConnection")))
-      {
-        try
-        {
-          SqlCommand command = new SqlCommand(@"INSERT INTO Przedmioty (NAZWA) VALUES (@nazwa)", connection);
-          command.CommandType = System.Data.CommandType.Text;
-          command.Parameters.Add("nazwa", SqlDbType.VarChar);
-          command.Parameters["nazwa"].Value = dto.Nazwa;
-          connection.Open();
-          var result = command.ExecuteNonQuery();
-        }
-        catch
-        {
-          return BadRequest();
-        }
-        finally
-        {
-          connection.Close();
-        }
-      }
-      return NoContent();
+      var result = przedmiotyService.Create(dto);
+      if (result == true)
+        return NoContent();
+      else
+        return BadRequest();      
     }
   }
 }
