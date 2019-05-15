@@ -40,6 +40,9 @@ namespace PlanLekcji
             });
             services.AddScoped<IPrzedmiotyService, PrzedmiotyService>();
             services.AddScoped<IPrzedmiotyRepository, PrzedmiotyRepository>();
+
+            services.AddScoped<ISaleService, SaleService>();
+            services.AddScoped<ISaleRepository, SaleRepository>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 

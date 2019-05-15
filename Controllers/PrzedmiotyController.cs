@@ -32,7 +32,12 @@ namespace PlanLekcji.Controllers
     [HttpGet("{id}")]
     public ActionResult<PrzedmiotDTO> Get(Int64 id)
     {
-      return przedmiotyService.Get(id);
+      var dto = przedmiotyService.Get(id);
+
+      if(dto != null)
+        return przedmiotyService.Get(id);
+      else
+        return Conflict("Nie ma takiego przedmiotu");
     }
 
     [HttpPost]
